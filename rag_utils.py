@@ -35,3 +35,8 @@ def get_random_hint(category: str, knowledge_base: Dict[str, dict] | None = None
         raise ValueError(f"Category '{category}' does not contain any hints")
 
     return random.choice(hints)
+
+
+def retrieve_hint(category: str, knowledge_base: Dict[str, dict] | None = None) -> str:
+    """Compatibility wrapper used by the Streamlit app."""
+    return get_random_hint(category, knowledge_base=knowledge_base)

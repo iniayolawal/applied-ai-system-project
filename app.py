@@ -1,8 +1,14 @@
 import random
 import streamlit as st
-from logic_utils import check_guess, classify_guess, start_new_game
-from rag_utils import get_random_hint
+from logic_utils import (
+    check_guess,
+    start_new_game,
+    classify_guess
+)
 
+from rag_utils import retrieve_hint
+from guardrails import validate_hint
+from logger_utils import log_hint_event
 
 def get_range_for_difficulty(difficulty: str):
     if difficulty == "Easy":
@@ -47,15 +53,6 @@ def update_score(current_score: int, outcome: str, attempt_number: int):
         return current_score - 5
 
     return current_score
-
-
-def get_retrieval_hint(guess: int, secret: int) -> str:
-    """Return a retrieval-based hint for the guess category."""
-    category = classify_guess(guess, secret)
-    try:
-        return get_random_hint(category)
-    except (KeyError, ValueError):
-        return "No hint available right now."
 
 st.set_page_config(page_title="Glitchy Guesser", page_icon="🎮")
 
@@ -154,10 +151,28 @@ if submit:
             secret = st.session_state.secret
 
         outcome, message = check_guess(guess_int, secret)
-        hint_text = get_retrieval_hint(guess_int, st.session_state.secret)
+
+        # AI retrieval workflow
+        category = classify_guess(
+            guess_int,
+            st.session_state.secret
+        )
+
+        hint = retrieve_hint(category)
+        validation_result = validate_hint(category, hint)
+        if not validation_result:
+            hint = "Hint validation failed."
+
+        log_hint_event(
+            guess=guess_int,
+            secret=st.session_state.secret,
+            category=category,
+            hint=hint,
+            validation_result=validation_result,
+        )
 
         if show_hint:
-            st.warning(f"{message}\n\nHint: {hint_text}")
+            st.warning(hint)
 
         st.session_state.score = update_score(
             current_score=st.session_state.score,
