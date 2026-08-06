@@ -1,0 +1,41 @@
+```mermaid
+flowchart TD
+    U["User enters a guess"] --> A["app.py
+Streamlit game UI"]
+
+    A --> S["Game state / secret number"]
+    A --> G["logic_utils.py
+check_guess(guess, secret)"]
+    A --> C["logic_utils.py
+classify_guess(guess, secret)"]
+
+    C --> R["rag_utils.py
+retrieve_hint(category)"]
+    KB["hint_knowledge_base.json"] --> R
+
+    R --> V["guardrails.py
+validate_hint(category, hint)"]
+    V --> L["logger_utils.py
+log_hint_event(...)"]
+    L --> F["hint_events.log"]
+
+    G --> H["Streamlit feedback
+show hint + outcome"]
+    V --> H
+
+    E["evaluate_system.py"] --> C
+    E --> R
+    E --> V
+
+    classDef app fill:#e3f2fd,stroke:#1e88e5,color:#0d47a1;
+    classDef logic fill:#e8f5e9,stroke:#43a047,color:#1b5e20;
+    classDef ai fill:#fff3e0,stroke:#fb8c00,color:#e65100;
+    classDef log fill:#f3e5f5,stroke:#8e24aa,color:#4a148c;
+    classDef eval fill:#fce4ec,stroke:#d81b60,color:#880e4f;
+
+    class A app;
+    class G,C logic;
+    class R,KB,V ai;
+    class L,F log;
+    class E eval;
+```
