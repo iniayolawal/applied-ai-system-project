@@ -1,6 +1,7 @@
 import random
 import streamlit as st
-from logic_utils import check_guess, start_new_game
+from logic_utils import check_guess, classify_guess, start_new_game
+from rag_utils import get_random_hint
 
 
 def get_range_for_difficulty(difficulty: str):
@@ -46,6 +47,15 @@ def update_score(current_score: int, outcome: str, attempt_number: int):
         return current_score - 5
 
     return current_score
+
+
+def get_retrieval_hint(guess: int, secret: int) -> str:
+    """Return a retrieval-based hint for the guess category."""
+    category = classify_guess(guess, secret)
+    try:
+        return get_random_hint(category)
+    except (KeyError, ValueError):
+        return "No hint available right now."
 
 st.set_page_config(page_title="Glitchy Guesser", page_icon="🎮")
 
@@ -144,9 +154,10 @@ if submit:
             secret = st.session_state.secret
 
         outcome, message = check_guess(guess_int, secret)
+        hint_text = get_retrieval_hint(guess_int, st.session_state.secret)
 
         if show_hint:
-            st.warning(message)
+            st.warning(f"{message}\n\nHint: {hint_text}")
 
         st.session_state.score = update_score(
             current_score=st.session_state.score,

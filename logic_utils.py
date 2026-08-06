@@ -15,6 +15,30 @@ def get_range_for_difficulty(difficulty: str):
     raise NotImplementedError("Refactor this function from app.py into logic_utils.py")
 
 
+def classify_guess(guess, secret):
+    """Classify a guess relative to the secret number.
+
+    The game uses simple distance-based thresholds so the hint system can
+    distinguish between a guess that is very far away and one that is close.
+    - Exact match is always considered correct.
+    - A difference of 10 or more is treated as far away.
+    - A difference smaller than 10 is treated as slightly off.
+    """
+    if guess == secret:
+        return "correct"
+
+    distance = abs(guess - secret)
+
+    if distance >= 10:
+        if guess < secret:
+            return "far_low"
+        return "far_high"
+
+    if guess < secret:
+        return "slightly_low"
+    return "slightly_high"
+
+
 def parse_guess(raw: str):
     """
     Parse user input into an int guess.

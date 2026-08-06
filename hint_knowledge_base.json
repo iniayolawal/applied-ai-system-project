@@ -1,0 +1,41 @@
+{
+  "far_low": {
+    "description": "Guess is much lower than the secret number",
+    "hints": [
+      "You're far below the target. Try making a much larger jump upward.",
+      "Consider guessing closer to the middle of the remaining range."
+    ]
+  },
+
+  "slightly_low": {
+    "description": "Guess is lower but close to the secret number",
+    "hints": [
+      "You're getting close. Increase your guess slightly.",
+      "Only a small adjustment upward may be needed."
+    ]
+  },
+
+  "far_high": {
+    "description": "Guess is much higher than the secret number",
+    "hints": [
+      "You're well above the target. Try moving lower.",
+      "Consider reducing your guess significantly."
+    ]
+  },
+
+  "slightly_high": {
+    "description": "Guess is higher but close to the secret number",
+    "hints": [
+      "You're very close. Lower your guess a little.",
+      "Only a small adjustment downward may be needed."
+    ]
+  },
+
+  "correct": {
+    "description": "Correct guess",
+    "hints": [
+      "Excellent! You found the secret number.",
+      "Great job! Your strategy paid off."
+    ]
+  }
+}
