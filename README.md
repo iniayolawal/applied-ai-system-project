@@ -1,92 +1,228 @@
-# 🎮 Game Glitch Investigator: The Impossible Guesser
+# 🎮 Glitchy Guesser AI: Reliable Hint Generation System
 
-## 🚨 The Situation
+## Project Overview
 
-You asked an AI to build a simple "Number Guessing Game" using Streamlit.
-It wrote the code, ran away, and now the game is unplayable. 
+### Original Project: Game Glitch Investigator: The Impossible Guesser
 
-- You can't win.
-- The hints lie to you.
-- The secret number seems to have commitment issues.
+Game Glitch Investigator was originally a Streamlit-based number guessing game created to practice debugging AI-generated code. The goal was to identify and repair issues such as incorrect hint logic, broken game state management, invalid input handling, and inconsistent difficulty settings.
 
-## 🛠️ Setup
+The original system allowed players to select a difficulty level, guess a randomly generated number, receive higher/lower hints, track attempts, and maintain a score. The project focused on using AI coding assistants to investigate bugs, refactor code, and create automated tests.
 
-1. Install dependencies: `pip install -r requirements.txt`
-2. Run the broken app: `python -m streamlit run app.py`
+## Applied AI Extension
 
-## 🕵️‍♂️ Your Mission
+For this final project, I extended the guessing game into an AI-assisted hint generation system.
 
-1. **Play the game.** Open the "Developer Debug Info" tab in the app to see the secret number. Try to win.
-2. **Find the State Bug.** Why does the secret number change every time you click "Submit"? Ask ChatGPT: *"How do I keep a variable from resetting in Streamlit when I click a button?"*
-3. **Fix the Logic.** The hints ("Higher/Lower") are wrong. Fix them.
-4. **Refactor & Test.** - Move the logic into `logic_utils.py`.
-   - Run `pytest` in your terminal.
-   - Keep fixing until all tests pass!
+The updated system uses:
+- Retrieval-Augmented Generation (RAG) to retrieve context-aware hints from a hint knowledge base.
+- Guardrails to validate that generated hints do not contradict the actual game state.
+- Logging to track AI decisions and validation results.
+- An evaluation harness to measure system reliability.
 
-## 📝 Document Your Experience
+Instead of directly returning static hints, the system classifies the player's guess, retrieves an appropriate hint, validates the hint, and then displays the final response.
 
-- [ ] Describe the game's purpose.
-- [ ] Detail which bugs you found.
-- [ ] Explain what fixes you applied.
+# Architecture Overview
 
- Glitchy Guesser is a number-guessing game built with Streamlit. Players select a difficulty level and attempt to guess a randomly generated secret number within a limited number of attempts. The game provides hints after each guess, tracks score, and allows players to start a new game when they finish.
+The system follows this workflow:
 
-Bugs Found
-- Hint messages were reversed.
-- New Game did not fully reset score, history or game state.
-- Invalid input consumed attempts.
-- Difficulty settings were inconsistent.
-- Hard mode used a smaller range than Normal mode, making it easier.
-- The secret number was sometimes converted to a string, causing incorrect comparisons.
-- Attempts started at 1, reducing the displayed attempts remaining before any guesses.
+1. The user enters a guess through the Streamlit interface.
+2. `classify_guess()` determines the player's position relative to the secret number.
+3. `retrieve_hint()` uses the classification category to retrieve a relevant hint from the knowledge base.
+4. `validate_hint()` checks that the hint is logically consistent.
+5. The validated hint is displayed and logged.
+6. `evaluate_system.py` tests classification, retrieval, and validation behavior.
 
-Fixes Applied
-- Corrected hint-direction logic in `check_guess()`.
+See `architecture.mmd` for the Mermaid architecture diagram.
 
-- Refactored New Game reset functionality into reusable logic.
+# Setup Instructions
 
-- Updated New Game to respect selected difficulty ranges.
-
-- Added tests to verify gameplay behavior.
-
-What I Learned
-AI was useful for identifying potential causes and suggesting refactors, but I still needed to review code changes carefully, verify behavior manually, and validate fixes using pytest.
-
-## 📸 Demo Walkthrough
-
-Describe your fixed game in numbered steps so a reader can follow along without watching a video:
-
-1. User starts a new game on Normal difficulty.
-2. The game generates a secret number within the Easy difficulty range.
-3. User enters a guess of 30.
-4. The game correctly identifies the guess as too low and displays a "Go Higher" hint.
-5. User enters a guess of 50.
-6. The game correctly identifies the guess as too high and displays a "Go Lower" hint.
-7. User enters the correct guess.
-8. The game displays a win message and updates the score.
-9. User clicks New Game.
-10. The game resets the secret number, score, history, attempts, and game status, allowing a fresh game to begin.
-
-**Screenshot** *(optional)*: <!-- Insert a screenshot of your fixed, winning game here -->![alt text](image.png)
-
-
-## 🧪 Test Results
+## Clone the repository
 
 ```
-# Paste your pytest output here, e.g.:
-# pytest tests/
-# ========================= X passed in 0.XXs =========================
+git clone <repository-url>
+cd applied-ai-system-final
 ```
-(.venv) iniayolawal@Anjola-Ayolawal ai110-module1show-gameglitchinvestigator-starter % pytest
-======================================= test session starts ========================================
-platform darwin -- Python 3.13.14, pytest-9.1.1, pluggy-1.6.0
-rootdir: /Users/iniayolawal/ai110-module1show-gameglitchinvestigator-starter
-plugins: anyio-4.14.0
-collected 15 items                                                                               
-tests/test_game_logic.py ...............                                                     [100%]
+## Create environment
+```
+python3 -m venv .venv
+source .venv/bin/activate
+```
+## Install dependencies
+```
+pip install -r requirements.txt
+```
+## Run the application
+```
+python3 -m streamlit run app.py
+```
 
-======================================== 15 passed in 0.12s ========================================
-![alt text](image-1.png)
-## 🚀 Stretch Features
+# Sample Interactions
 
-- [ ] [If you choose to complete Challenge 4, describe the Enhanced UI changes here — a screenshot is optional]
+The following examples demonstrate how the system processes a user's guess through classification, retrieval, validation, and final output.
+
+---
+
+## Example 1: User Makes a Far Low Guess
+
+### Input
+Secret number: 50
+User guess: 20
+### AI Processing
+The system classifies the guess:
+far_low
+The RAG component retrieves a hint associated with the `far_low` category:
+Retrieved Hint:
+"Consider guessing closer to the middle of the remaining range."
+The guardrail system validates that the hint matches the game state:
+Validation Result:
+PASS
+### Final Output to User
+Your guess is too low.
+Hint: Consider guessing closer to the middle of the remaining range.
+---
+
+## Example 2: User Makes a Slightly High Guess
+
+### Input
+Secret number: 50
+User guess: 58
+### AI Processing
+The system classifies the guess:
+Classification:
+slightly_high
+The RAG component retrieves a context-appropriate hint:
+Retrieved Hint:
+"Only a small adjustment downward may be needed."
+The guardrail validates the response:
+Validation Result:
+PASS
+### Final Output to User
+Your guess is too high.
+Hint: Only a small adjustment downward may be needed.
+
+---
+
+## Example 3: User Correctly Guesses the Number
+
+### Input
+Secret number: 52
+User guess: 52
+### AI Processing
+The system identifies an exact match:
+Classification:
+correct
+The RAG component retrieves the success response:
+Retrieved Hint:
+"Great job! Your strategy paid off."
+The guardrail validates the response:
+Validation Result:
+PASS
+### Final Output to User
+Correct! You found the secret number.
+Hint: Great job! Your strategy paid off.
+---
+
+## Example 4: Guardrail Prevents a Misleading Hint
+
+### Input
+Secret number: 50
+User guess: 20
+The system correctly classifies the guess:
+Classification:
+far_low
+A misleading hint is detected:
+Generated Hint:
+"Try going lower."
+The guardrail checks whether the hint contradicts the actual game state:
+Validation Result:
+FAIL
+Reason:
+A low guess should not receive instructions to guess lower.
+The system rejects the incorrect hint and prevents it from being shown to the user.
+
+
+# Design Decisions
+
+## Why RAG?
+
+The original game used fixed hint logic. I introduced retrieval so hints could be stored separately from the game logic and expanded without changing application code.
+
+## Why Guardrails?
+
+Language models and AI systems can produce incorrect outputs. The validation layer ensures hints remain consistent with the player's actual guess direction.
+
+## Trade-offs
+
+A retrieval-based approach adds additional complexity compared to hardcoded hints, but it improves maintainability, transparency, and reliability.
+
+The system does not use a large language model directly for generation, which reduces unpredictability but limits the variety of possible hints.
+
+# Testing Summary
+
+## Reliability and Evaluation
+
+To ensure the AI-assisted hint system behaves consistently, the project includes automated evaluation, guardrails, and logging mechanisms.
+
+## Automated Evaluation
+
+The `evaluate_system.py` script tests the reliability of the major AI system components:
+
+- Guess classification
+- Hint retrieval
+- Hint validation
+
+Evaluation results:
+```
+[PASS] classify_guess exact match
+[PASS] classify_guess far low
+[PASS] classify_guess slightly high
+[PASS] retrieve_hint returns a non-empty string
+[PASS] guardrail accepts matching low hint
+[PASS] guardrail rejects misleading low hint
+[PASS] guardrail rejects misleading high hint
+
+Overall success rate: 7/7 (100.0%)
+```
+
+## Guardrail Validation
+
+The guardrail system prevents incorrect hints from being shown to users.
+
+For example:
+
+| Test Input | Expected Behavior | Result |
+|---|---|---|
+| Guess: 20, Secret: 50 | Hint should encourage increasing the guess | Pass |
+| Guess: 58, Secret: 50 | Hint should encourage decreasing the guess | Pass |
+| Guess: 20, Secret: 50 with misleading hint "Try going lower" | System should reject incorrect guidance | Pass |
+
+## Logging and Error Handling
+
+The system logs AI hint decisions and validation results in `hint_events.log`.
+
+Each log entry records:
+
+- Timestamp
+- User guess
+- Secret number
+- Guess classification category
+- Retrieved hint
+- Validation result
+
+Example:
+```
+timestamp=2026-08-06T00:46:45Z | guess=45 | secret=17 | category=far_high | hint=Consider reducing your guess significantly. | validation_result=True
+```
+
+This allows the system behavior to be reviewed after execution and helps identify incorrect AI behavior.
+
+## Reliability Improvements
+
+The original guessing game relied on fixed hint logic that could produce misleading responses. By adding retrieval, validation, and evaluation, the system became more reliable because AI-generated hints are checked before reaching the user.
+
+The evaluation process showed that all tested classification, retrieval, and validation cases passed successfully.
+
+# Reflection
+
+This project showed me that building reliable AI systems requires more than adding AI functionality. The most important part was designing checks around AI behavior and validating that outputs remained accurate and useful.
+
+By combining retrieval, guardrails, logging, and evaluation, the system became more predictable and easier to debug.
